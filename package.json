@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "tw": "npx tailwindcss -i ./tailwind.css -o ./assets/css/lib/tailwind.css --watch",
+    "minify:css": "npx tailwindcss -i ./assets/css/lib/taiwind.css -o ./assets/css/lib/tailwind.css --minify",
+    "minify:js": "node minify.js"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.9",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "3.4.14",
+    "uglify-js": "^3.19.3"
+  }
+}
