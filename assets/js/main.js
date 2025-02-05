@@ -41,6 +41,8 @@ window.addEventListener("htmx:configRequest", function (evt) {
 //.III..NNN....NNNN..III......TTT....
 //...................................
 
+const CONTEXT_SCREEN_MENU = ["Create document", "Create folder"];
+
 const main = document.getElementById("main-screen");
 const mainHeight = document.getElementById("main-height");
 const mainWidth = document.getElementById("main-width");
@@ -48,4 +50,72 @@ const mainWidth = document.getElementById("main-width");
 mainHeight.value = main.clientHeight;
 mainWidth.value = main.clientWidth;
 
-const form = document.querySelector("form");
+export function setupRightClickContextMenu() {
+  document.addEventListener("mouseup", (event) => {
+    let contextMenuEl = document.getElementById("context-menu");
+
+    if (contextMenuEl && !event.target.contains(contextMenuEl)) {
+      switch (event.button) {
+        case 0:
+          document.body.removeChild(contextMenuEl);
+          break;
+        default:
+          break;
+      }
+    }
+  });
+
+  main.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+
+    let contextMenuEl = document.getElementById("context-menu");
+    let authorization_token =
+      document.getElementById("authenticity_token")?.value;
+
+    if (contextMenuEl) {
+      document.body.removeChild(contextMenuEl);
+    }
+
+    let contextMenu = document.createElement("div");
+
+    contextMenu.setAttribute("id", "context-menu");
+    contextMenu.style.width = "200px";
+    contextMenu.style.height = "200px";
+    contextMenu.style.padding = "6px";
+    contextMenu.style.display = "flex";
+    contextMenu.style.flexDirection = "column";
+    contextMenu.style.gap = "8px";
+    contextMenu.style.borderRadius = "4px";
+    contextMenu.style.background = "white";
+    contextMenu.style.position = "absolute";
+    contextMenu.style.left = `${event.x}px`;
+    contextMenu.style.top = `${event.y}px`;
+
+    for (const itemText of CONTEXT_SCREEN_MENU) {
+      let menuItems = document.createElement("form");
+      let id = itemText.replace(/\s/g, "").toLowerCase();
+
+      menuItems.textContent = itemText;
+      menuItems.style.cursor = "pointer";
+      menuItems.setAttribute("id", id);
+
+      let input_token = document.createElement("input");
+      input_token.setAttribute("type", "hidden");
+      input_token.setAttribute("name", "authenticity_token");
+      input_token.setAttribute("value", authorization_token);
+
+      menuItems.appendChild(input_token);
+
+      menuItems.addEventListener("mouseup", () => {
+        htmx.ajax("POST", "/create-txt", {
+          target: "#item-0-0",
+          source: `#${id}`,
+        });
+      });
+
+      contextMenu.appendChild(menuItems);
+    }
+
+    document.body.appendChild(contextMenu);
+  });
+}
