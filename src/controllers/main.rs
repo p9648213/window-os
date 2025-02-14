@@ -3,7 +3,7 @@ use axum::Form;
 use axum_csrf::CsrfToken;
 use serde::Deserialize;
 
-use crate::views::main::{render_main_grid, render_main_screen, render_screen_item};
+use crate::views::main::{render_main_grid, render_main_screen, render_screen_item, ItemType};
 
 #[derive(Deserialize)]
 pub struct MainForm {
@@ -27,7 +27,13 @@ pub async fn main_grid(Form(form): Form<MainForm>) -> Html<String> {
 pub async fn create_txt(csrf_token: CsrfToken) -> impl IntoResponse {
     (
         csrf_token,
-        render_screen_item().into_string()
+        render_screen_item(ItemType::Text).into_string()
     )
-    
+}
+
+pub async fn create_folder(csrf_token: CsrfToken) -> impl IntoResponse {
+    (
+        csrf_token,
+        render_screen_item(ItemType::Folder).into_string()
+    )
 }

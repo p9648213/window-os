@@ -1,6 +1,6 @@
 use crate::{
     config::EnvConfig,
-    controllers::main::{create_txt, main_grid, main_screen},
+    controllers::main::{create_folder, create_txt, main_grid, main_screen},
     middlewares::csrf::csrf_middleware,
     models::state::AppState,
 };
@@ -74,6 +74,7 @@ pub async fn create_router(
         .route("/", get(main_screen))
         .route("/grid", post(main_grid))
         .route("/create-txt", post(create_txt))
+        .route("/create-folder", post(create_folder))
         .with_state(app_state.clone())
         .layer(cache_control_layer)
         .layer(SessionLayer::new(session_store))

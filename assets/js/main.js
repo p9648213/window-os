@@ -79,21 +79,28 @@ export function setupRightClickContextMenu() {
     let contextMenu = document.createElement("div");
 
     contextMenu.setAttribute("id", "context-menu");
-    contextMenu.style.width = "200px";
-    contextMenu.style.height = "200px";
-    contextMenu.style.padding = "6px";
-    contextMenu.style.display = "flex";
-    contextMenu.style.flexDirection = "column";
-    contextMenu.style.gap = "8px";
-    contextMenu.style.borderRadius = "4px";
-    contextMenu.style.background = "white";
-    contextMenu.style.position = "absolute";
+    contextMenu.classList.add(
+      "w-50",
+      "h-50",
+      "p-2",
+      "flex",
+      "flex-col",
+      "g-3",
+      "rounded-md",
+      "bg-white",
+      "absolute"
+    );
     contextMenu.style.left = `${event.x}px`;
     contextMenu.style.top = `${event.y}px`;
 
     for (const itemText of CONTEXT_SCREEN_MENU) {
       let menuItems = document.createElement("form");
       let id = itemText.replace(/\s/g, "").toLowerCase();
+      let itemsType = "txt";
+
+      if (itemText === "Create folder") {
+        itemsType = "folder";
+      }
 
       menuItems.textContent = itemText;
       menuItems.style.cursor = "pointer";
@@ -106,16 +113,49 @@ export function setupRightClickContextMenu() {
 
       menuItems.appendChild(input_token);
 
-      menuItems.addEventListener("mouseup", () => {
-        htmx.ajax("POST", "/create-txt", {
-          target: "#item-0-0",
-          source: `#${id}`,
+      if (itemsType === "txt") {
+        menuItems.addEventListener("mouseup", () => {
+          let targetId = checkEmptySpace();
+          if (targetId) {
+            htmx.ajax("POST", `/create-txt`, {
+              target: `#${targetId}`,
+              source: `#${id}`,
+            });
+          }
         });
-      });
+      } else if (itemsType === "folder") {
+        menuItems.addEventListener("mouseup", () => {
+          let targetId = checkEmptySpace();
+          if (targetId) {
+            htmx.ajax("POST", `/create-folder`, {
+              target: `#${targetId}`,
+              source: `#${id}`,
+            });
+          }
+        });
+      }
 
       contextMenu.appendChild(menuItems);
     }
 
     document.body.appendChild(contextMenu);
   });
+}
+
+function checkEmptySpace() {
+  const totalRows = document.getElementById("screen-rows")?.value;
+  const totalCols = document.getElementById("screen-cols")?.value;
+
+  if (totalRows && totalCols) {
+    for (let i = 0; i < totalCols; i++) {
+      for (let j = 0; j < totalRows; j++) {
+        const item = document.getElementById(`item-${j}-${i}`);
+        if (item && item.innerHTML == "") {
+          return `item-${j}-${i}`;
+        }
+      }
+    }
+  } else {
+    return null;
+  }
 }

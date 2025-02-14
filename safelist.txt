@@ -1,0 +1,9 @@
+w-50
+h-50
+p-2
+flex
+flex-col
+g-3
+rounded-sm
+bg-white
+absolute
